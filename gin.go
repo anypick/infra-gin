@@ -2,8 +2,10 @@ package basegin
 
 import (
 	"github.com/anypick/infra"
+	"github.com/anypick/infra-gin/helper"
 	"github.com/gin-gonic/gin"
-	"log"
+	"github.com/sirupsen/logrus"
+	"net/http"
 )
 
 var ginEngine *gin.Engine
@@ -19,6 +21,9 @@ type GinStarter struct {
 
 func (g *GinStarter) Init(ctx infra.StarterContext) {
 	ginEngine = initGinApp()
+	ginEngine.GET("/test", func(context *gin.Context) {
+		context.JSON(http.StatusOK, gin.H{"ping": "pong"})
+	})
 }
 
 func (g *GinStarter) Start(ctx infra.StarterContext) {
@@ -28,13 +33,13 @@ func (g *GinStarter) Start(ctx infra.StarterContext) {
 		e      error
 	)
 	engine = Gin()
-	port = ctx.Yaml().Application.Port;
+	port = ctx.Yaml().Application.Port
 	routes := engine.Routes()
 	for _, info := range routes {
-		log.Println(info.Method, info.Path, info.Handler)
+		logrus.Infof("API: %s %s %s", info.Method, info.Path, info.Handler)
 	}
 	if e = engine.Run(":" + port); e != nil {
-		log.Fatal(e)
+		logrus.Infof("gin start with port %d", port)
 	}
 }
 
@@ -47,8 +52,6 @@ func (g *GinStarter) StartBlocking() bool {
 func initGinApp() *gin.Engine {
 	gin.SetMode(gin.ReleaseMode)
 	app := gin.New()
-	// 可以处理程序panic，以及500错误
-	app.Use(gin.Recovery())
-	// 日志
+	app.Use(helper.GetAllMiddleWares()...)
 	return app
 }

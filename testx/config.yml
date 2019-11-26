@@ -1,11 +1,14 @@
 application:
   server.port: 8086
   name: infra-gin
+  auth.ignore:
+    - "/sys/user/login$"
+    - "^/api/public/"
 
 
 # 日志配置
 logrus:
-  level: trace
+  level: debug
   logFileName: infra-gin
   filePath: logs/
   #  配置日志切割

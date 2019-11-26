@@ -8,6 +8,6 @@ import (
 
 // 用户调用,初始化资源
 func Init() {
-	container.RegisterYamContainer(&config.GinApp{Prefix: config.DefaultPrefix})
+	container.Add(&config.GinApp{Prefix: config.DefaultPrefix})
 	infra.Register(&GinStarter{})
 }
